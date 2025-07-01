@@ -1,0 +1,30 @@
+# Golang
+/bin/
+/build/
+/dist/
+/vendor/
+*.exe
+*.test
+*.out
+
+# Dependency directories
+/go.sum
+/go.work
+
+# Env files
+.env
+
+# IDE/editor
+*.swp
+*.log
+*.tmp
+.vscode/
+.idea/
+
+# Docker
+**/db_data
+docker-compose.override.yml
+
+# Mailhog/Redis Logs
+mailhog_data/
+*.pid
