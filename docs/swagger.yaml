@@ -1,0 +1,506 @@
+basePath: /
+definitions:
+  handler.AcceptInput:
+    properties:
+      merchant_id:
+        type: string
+    type: object
+  handler.AssignShipperInput:
+    properties:
+      distance:
+        type: string
+      estimated_time:
+        type: string
+      shipper_id:
+        type: string
+    type: object
+  handler.ConfirmInput:
+    properties:
+      shipper_id:
+        type: string
+    type: object
+  handler.CookingInput:
+    properties:
+      merchant_id:
+        type: string
+    type: object
+  handler.DeliverInput:
+    properties:
+      delivery_time:
+        type: string
+      receiver_info:
+        type: string
+    type: object
+  handler.PickupInput:
+    properties:
+      pickup_time:
+        type: string
+    type: object
+  model.EventStore:
+    properties:
+      aggregateID:
+        type: string
+      aggregateType:
+        type: string
+      createdAt:
+        type: string
+      eventData:
+        type: string
+      eventType:
+        type: string
+      id:
+        type: integer
+    type: object
+  model.Order:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: integer
+      note:
+        type: string
+      orderID:
+        type: string
+      restaurantID:
+        type: integer
+      status:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        type: integer
+    type: object
+  model.OrderItem:
+    properties:
+      product_id:
+        type: integer
+      quantity:
+        type: integer
+    type: object
+  service.CancelOrderInput:
+    properties:
+      canceledBy:
+        type: string
+      reason:
+        type: string
+    type: object
+  service.CreateOrderRequest:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/model.OrderItem'
+        type: array
+      note:
+        type: string
+      restaurant_id:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  service.CreateOrderResponse:
+    properties:
+      order_id:
+        type: string
+      status:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Tài liệu API cho hệ thống đặt món ăn trực tuyến.
+  title: Food Order API
+  version: "1.0"
+paths:
+  /orders/{order_id}:
+    get:
+      description: Dựa trên event sourcing, hàm này tái hiện lại trạng thái mới nhất
+        của đơn hàng dựa vào các event lịch sử
+      parameters:
+      - description: Order ID
+        in: path
+        name: order_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Order'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Lấy trạng thái hiện tại của một đơn hàng
+      tags:
+      - Orders
+  /orders/{order_id}/accept:
+    post:
+      consumes:
+      - application/json
+      description: Xác nhận từ phía nhà hàng rằng đơn hàng đã được tiếp nhận và sẽ
+        xử lý
+      parameters:
+      - description: Order ID
+        in: path
+        name: order_id
+        required: true
+        type: string
+      - description: Thông tin nhà hàng chấp nhận đơn
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.AcceptInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Nhà hàng chấp nhận đơn thành công
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Nhà hàng chấp nhận đơn hàng
+      tags:
+      - Events
+  /orders/{order_id}/assign:
+    post:
+      consumes:
+      - application/json
+      description: Gán đơn hàng cho shipper cùng với thời gian dự kiến và quãng đường
+        giao hàng
+      parameters:
+      - description: Order ID
+        in: path
+        name: order_id
+        required: true
+        type: string
+      - description: Thông tin shipper được gán
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.AssignShipperInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Gán shipper thành công
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Giao đơn hàng cho shipper
+      tags:
+      - Events
+  /orders/{order_id}/cancel:
+    post:
+      consumes:
+      - application/json
+      description: Hủy đơn hàng với lý do và người thực hiện (user, shipper, restaurant,
+        etc.)
+      parameters:
+      - description: Order ID
+        in: path
+        name: order_id
+        required: true
+        type: string
+      - description: Thông tin hủy đơn hàng
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.CancelOrderInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Hủy đơn hàng thành công
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Hủy đơn hàng
+      tags:
+      - Events
+  /orders/{order_id}/confirm:
+    post:
+      consumes:
+      - application/json
+      description: Xác nhận shipper đã đến nhà hàng để nhận đơn hàng
+      parameters:
+      - description: Order ID
+        in: path
+        name: order_id
+        required: true
+        type: string
+      - description: Thông tin xác nhận từ shipper
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.ConfirmInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Shipper xác nhận thành công
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Shipper xác nhận với nhà hàng
+      tags:
+      - Events
+  /orders/{order_id}/deliver:
+    post:
+      consumes:
+      - application/json
+      description: Ghi nhận thời điểm shipper giao hàng thành công cùng thông tin
+        người nhận
+      parameters:
+      - description: Order ID
+        in: path
+        name: order_id
+        required: true
+        type: string
+      - description: Thông tin giao hàng
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.DeliverInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Giao hàng thành công
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Giao hàng thành công
+      tags:
+      - Events
+  /orders/{order_id}/pickup:
+    post:
+      consumes:
+      - application/json
+      description: Ghi nhận thời gian shipper lấy món từ nhà hàng để chuẩn bị giao
+      parameters:
+      - description: Order ID
+        in: path
+        name: order_id
+        required: true
+        type: string
+      - description: Thông tin thời gian lấy món
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.PickupInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Lấy món thành công
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Shipper lấy món tại nhà hàng
+      tags:
+      - Events
+  /orders/{order_id}/replay:
+    get:
+      description: Trả về danh sách event của order theo thời gian
+      parameters:
+      - description: Order ID
+        in: path
+        name: order_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.EventStore'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Xem lại toàn bộ event lịch sử của một đơn hàng
+      tags:
+      - Orders
+  /orders/{order_id}/start-cooking:
+    post:
+      consumes:
+      - application/json
+      description: Ghi nhận thời điểm nhà hàng bắt đầu chế biến món ăn
+      parameters:
+      - description: Order ID
+        in: path
+        name: order_id
+        required: true
+        type: string
+      - description: Thông tin nhà hàng bắt đầu nấu
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CookingInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Bắt đầu nấu thành công
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Nhà hàng bắt đầu nấu món
+      tags:
+      - Events
+  /orders/create:
+    post:
+      consumes:
+      - application/json
+      description: Tạo đơn hàng mới và lưu event vào event store + sync với read model
+      parameters:
+      - description: Thông tin đơn hàng
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/service.CreateOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/service.CreateOrderResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Tạo đơn hàng mới
+      tags:
+      - Orders
+  /orders/user/{user_id}:
+    get:
+      description: Hỗ trợ lọc theo status, restaurant_id, phân trang
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: 'Số trang (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Số đơn mỗi trang (default: 10)'
+        in: query
+        name: limit
+        type: integer
+      - description: Lọc theo trạng thái
+        in: query
+        name: status
+        type: string
+      - description: Lọc theo nhà hàng
+        in: query
+        name: restaurant_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Lấy danh sách đơn hàng của một người dùng
+      tags:
+      - Orders
+swagger: "2.0"

@@ -1,19 +1,26 @@
 package db
 
 import (
-    "gorm.io/gorm"
-    "gorm.io/driver/mysql"
-    "log"
-    "os"
+	"log"
+	"os"
+
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+
+	"food-order-backend/internal/app/order/model"
 )
 
 var DB *gorm.DB
 
 func Init() {
-    dsn := os.Getenv("DB_DSN")
-    var err error
-    DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
-    if err != nil {
-        log.Fatalf("failed to connect DB: %v", err)
-    }
+	dsn := os.Getenv("DB_DSN")
+	var err error
+	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatalf("failed to connect to DB: %v", err)
+	}
+
+	if err := DB.AutoMigrate(&model.EventStore{}, &model.Order{}); err != nil {
+		log.Fatalf("failed to auto-migrate DB: %v", err)
+	}
 }

@@ -2,7 +2,7 @@ APP_NAME = food-order-api
 CMD_PATH = cmd/api
 DOCKER_DEV_FILE = docker-compose.dev.yml
 
-.PHONY: run build clean-build deps stop logs
+.PHONY: run build clean-build deps stop logs swagger
 
 run:
 	go run $(CMD_PATH)/main.go
@@ -22,3 +22,6 @@ stop:
 
 logs:
 	docker-compose -f $(DOCKER_DEV_FILE) logs -f
+
+swagger:
+	swag init --generalInfo cmd/api/main.go --output docs

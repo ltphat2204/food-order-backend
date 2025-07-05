@@ -1,26 +1,43 @@
 package main
 
 import (
-    "github.com/gin-gonic/gin"
-    "github.com/joho/godotenv"
-    "food-order-backend/internal/infrastructure/db"
-    "os"
+	"os"
+
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	swaggerFiles "github.com/swaggo/files"
+
+    _ "food-order-backend/docs"
+	"food-order-backend/internal/infrastructure/db"
+	orderRouter "food-order-backend/internal/app/order/router"
 )
 
+// @title           Food Order API
+// @version         1.0
+// @description     Tài liệu API cho hệ thống đặt món ăn trực tuyến.
+//
+// @host      localhost:8080
+// @BasePath  /
 func main() {
-    _ = godotenv.Load()
+	_ = godotenv.Load()
+	db.Init()
 
-    db.Init()
+	r := gin.Default()
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(200, gin.H{"message": "pong"})
+	})
 
-    r := gin.Default()
-    r.GET("/ping", func(c *gin.Context) {
-        c.JSON(200, gin.H{"message": "pong"})
-    })
+	api := r.Group("/api/v1")
+	orderRouter.Register(api)
 
-    port := os.Getenv("PORT")
-    if port == "" {
-        port = "8080"
-    }
+    
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-    r.Run(":" + port)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	r.Run(":" + port)
 }
