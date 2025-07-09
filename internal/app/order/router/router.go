@@ -1,8 +1,9 @@
 package router
 
 import (
-	"github.com/gin-gonic/gin"
 	"food-order-backend/internal/app/order/handler"
+
+	"github.com/gin-gonic/gin"
 )
 
 func Register(rg *gin.RouterGroup) {
@@ -13,6 +14,12 @@ func Register(rg *gin.RouterGroup) {
 
 		// Liệt kê các đơn theo người dùng
 		order.GET("/user/:user_id", handler.ListByUser)
+
+		// Liệt kê các đơn theo merchant (nhà hàng)
+		order.GET("/merchant/:merchant_id", handler.ListByMerchant)
+
+		// Liệt kê các đơn mới cho shipper
+		order.GET("/shipper/new", handler.ListNewOrdersForShipper)
 
 		// Truy xuất trạng thái hiện tại bằng replay event
 		order.GET("/:order_id", handler.GetOrder)

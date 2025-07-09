@@ -5,12 +5,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	ginSwagger "github.com/swaggo/gin-swagger"
 	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 
-    _ "food-order-backend/docs"
-	"food-order-backend/internal/infrastructure/db"
+	_ "food-order-backend/docs"
 	orderRouter "food-order-backend/internal/app/order/router"
+	"food-order-backend/internal/infrastructure/db"
 )
 
 // @title           Food Order API
@@ -31,7 +31,6 @@ func main() {
 	api := r.Group("/api/v1")
 	orderRouter.Register(api)
 
-    
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	port := os.Getenv("PORT")

@@ -1,18 +1,31 @@
 package service
 
 import (
+	"encoding/json"
 	"errors"
 	"time"
+
 	"gorm.io/gorm/clause"
 
 	"food-order-backend/internal/app/order/model"
 	"food-order-backend/internal/infrastructure/db"
+	"food-order-backend/internal/shared/ws"
 )
 
 func ApplyOrderEvent(orderID string, eventType string, data model.OrderEventData) error {
 	// Append event
 	if err := AppendOrderEvent(orderID, eventType, data); err != nil {
 		return err
+	}
+
+	// Broadcast to websocket clients
+	msg := map[string]interface{}{
+		"order_id":   orderID,
+		"event_type": eventType,
+		"data":       data,
+	}
+	if b, err := json.Marshal(msg); err == nil {
+		ws.GetHub().Broadcast(b)
 	}
 
 	// Sync read model

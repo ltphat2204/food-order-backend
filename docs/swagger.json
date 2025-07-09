@@ -61,6 +61,107 @@
                 }
             }
         },
+        "/orders/merchant/{merchant_id}": {
+            "get": {
+                "description": "Hỗ trợ lọc theo status, phân trang",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Lấy danh sách đơn hàng của một merchant (nhà hàng)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Merchant (Restaurant) ID",
+                        "name": "merchant_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Số trang (default: 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Số đơn mỗi trang (default: 10)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Lọc theo trạng thái",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/orders/shipper/new": {
+            "get": {
+                "description": "Lấy các đơn hàng có trạng thái 'RESTAURANT_ACCEPTED' (chờ shipper nhận)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Lấy danh sách đơn hàng mới cho shipper",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Số trang (default: 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Số đơn mỗi trang (default: 10)",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/orders/user/{user_id}": {
             "get": {
                 "description": "Hỗ trợ lọc theo status, restaurant_id, phân trang",
@@ -593,6 +694,18 @@
                         }
                     }
                 }
+            }
+        },
+        "/ws/orders": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "WebSocket"
+                ],
+                "summary": "WebSocket order event stream",
+                "responses": {}
             }
         }
     },
