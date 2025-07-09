@@ -21,6 +21,7 @@ func ApplyOrderEvent(orderID string, eventType string, data model.OrderEventData
 	// Broadcast to websocket clients
 	msg := map[string]interface{}{
 		"order_id":   orderID,
+		"user_id":    data.UserID,
 		"event_type": eventType,
 		"data":       data,
 	}

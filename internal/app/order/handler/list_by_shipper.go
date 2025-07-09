@@ -22,10 +22,12 @@ import (
 func ListNewOrdersForShipper(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	status := c.Query("status")
 
 	query := service.ListShipperNewOrdersQuery{
 		Page:  page,
 		Limit: limit,
+		Status: status,
 	}
 
 	result, err := service.ListNewOrdersForShipper(query)
