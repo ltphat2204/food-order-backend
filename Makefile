@@ -36,3 +36,7 @@ swagger:
 test-consistency:
 	go test ./internal/app/order/service/ -v -run="TestAggregate"
 
+# Benchmark read performance (CQRS): compare event replay vs read model
+benchmark-read:
+	go test ./internal/app/order/service/ -bench=BenchmarkReadPerformance -benchmem
+
