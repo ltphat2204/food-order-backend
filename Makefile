@@ -3,7 +3,7 @@ CMD_PATH = cmd/api
 SOCKET_PATH = cmd/socket
 DOCKER_DEV_FILE = docker-compose.dev.yml
 
-.PHONY: run build clean-build deps stop logs swagger
+.PHONY: run build clean-build deps stop logs swagger test-consistency
 
 rest:
 	go run $(CMD_PATH)/main.go
@@ -31,4 +31,12 @@ logs:
 
 swagger:
 	swag init --generalInfo cmd/api/main.go --output docs
+
+# Test aggregate consistency
+test-consistency:
+	go test ./internal/app/order/service/ -v -run="TestAggregate"
+
+# Benchmark read performance (CQRS): compare event replay vs read model
+benchmark-read:
+	go test ./internal/app/order/service/ -bench=BenchmarkReadPerformance -benchmem
 
