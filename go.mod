@@ -8,14 +8,10 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/joho/godotenv v1.5.1
-<<<<<<< ours
 	github.com/redis/go-redis/v9 v9.0.0
-||||||| ancestor
-=======
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
 	github.com/swaggo/swag v1.16.4
->>>>>>> theirs
 	gorm.io/driver/mysql v1.6.0
 	gorm.io/gorm v1.30.0
 )
@@ -67,12 +63,5 @@ require (
 	golang.org/x/tools v0.34.0 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-<<<<<<< ours
-)
-||||||| ancestor
 	sigs.k8s.io/yaml v1.5.0 // indirect
 )
-=======
-	sigs.k8s.io/yaml v1.5.0 // indirect
-)
->>>>>>> theirs
