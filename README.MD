@@ -1,6 +1,6 @@
 # Food Order Backend (Golang)
 
-A monolith backend for food ordering system (like ShopeeFood), written in Golang + GORM + MySQL + Redis + Mailhog.
+A monolith backend for food ordering system (like ShopeeFood), written in Golang + GORM + PostgreSQL + Redis + Mailhog.
 
 ## Features
 - Event Sourcing architecture
