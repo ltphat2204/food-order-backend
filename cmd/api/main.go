@@ -12,6 +12,7 @@ import (
 	_ "food-order-backend/docs"
 	orderRouter "food-order-backend/internal/app/order/router"
 	"food-order-backend/internal/infrastructure/db"
+	"food-order-backend/internal/shared/config"
 )
 
 // @title           Food Order API
@@ -23,6 +24,7 @@ import (
 func main() {
 	_ = godotenv.Load()
 	db.Init()
+	config.InitRedis()
 
 	r := gin.Default()
 

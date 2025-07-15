@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"log"
 
+	"food-order-backend/internal/shared/config"
 	"food-order-backend/internal/shared/ws"
 
 	"github.com/gin-gonic/gin"
@@ -55,9 +57,14 @@ import (
 // @Produce json
 // @Router /ws/orders [get]
 func main() {
+	config.InitRedis()
+
 	r := gin.Default()
 
 	hub := ws.GetHub()
+
+	// Subscribe to Redis channel and broadcast to websocket clients
+	go hub.SubscribeAndBroadcast(context.Background(), "order_events")
 
 	r.GET("/ws/orders", func(c *gin.Context) {
 		ws.ServeWs(hub, c.Writer, c.Request)

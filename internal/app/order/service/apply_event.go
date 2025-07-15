@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"time"
@@ -9,7 +10,7 @@ import (
 
 	"food-order-backend/internal/app/order/model"
 	"food-order-backend/internal/infrastructure/db"
-	"food-order-backend/internal/shared/ws"
+	"food-order-backend/internal/shared/config"
 )
 
 func ApplyOrderEvent(orderID string, eventType string, data model.OrderEventData) error {
@@ -26,7 +27,11 @@ func ApplyOrderEvent(orderID string, eventType string, data model.OrderEventData
 		"data":       data,
 	}
 	if b, err := json.Marshal(msg); err == nil {
-		ws.GetHub().Broadcast(b)
+		// Publish to Redis channel instead of direct broadcast
+		redisClient := config.GetRedisClient()
+		if redisClient != nil {
+			redisClient.Publish(context.Background(), "order_events", b)
+		}
 	}
 
 	// Sync read model
