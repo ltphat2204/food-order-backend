@@ -19,7 +19,7 @@ import (
 // @version         1.0
 // @description     Tài liệu API cho hệ thống đặt món ăn trực tuyến.
 //
-// @host      localhost:8080
+// @host      https://food-order-backend-ltphat22046049-4uyzpvge.leapcell.dev/
 // @BasePath  /api/v1
 func main() {
 	_ = godotenv.Load()
@@ -30,7 +30,7 @@ func main() {
 
 	// Add CORS middleware
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowOrigins:     []string{"http://localhost:5173", "https://food-order-hcmus.netlify.app"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
