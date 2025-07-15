@@ -1,9 +1,12 @@
 package ws
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"sync"
+
+	"food-order-backend/internal/shared/config"
 
 	"github.com/gorilla/websocket"
 )
@@ -113,4 +116,19 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 // Broadcast sends a message to all clients
 func (h *Hub) Broadcast(message []byte) {
 	h.broadcast <- message
+}
+
+// SubscribeAndBroadcast subscribes to Redis channel and broadcasts messages to all clients
+func (h *Hub) SubscribeAndBroadcast(ctx context.Context, channel string) {
+	redisClient := config.GetRedisClient()
+	if redisClient == nil {
+		return
+	}
+	pubsub := redisClient.Subscribe(ctx, channel)
+	ch := pubsub.Channel()
+	go func() {
+		for msg := range ch {
+			h.Broadcast([]byte(msg.Payload))
+		}
+	}()
 }
