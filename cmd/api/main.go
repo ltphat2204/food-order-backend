@@ -19,7 +19,7 @@ import (
 // @version         1.0
 // @description     Tài liệu API cho hệ thống đặt món ăn trực tuyến.
 //
-// @host      https://food-order-backend-ltphat22046049-4uyzpvge.leapcell.dev/
+// @host      http://localhost:8080
 // @BasePath  /api/v1
 func main() {
 	_ = godotenv.Load()

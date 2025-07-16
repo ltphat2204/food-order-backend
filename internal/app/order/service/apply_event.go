@@ -44,6 +44,7 @@ func ApplyOrderEvent(orderID string, eventType string, data model.OrderEventData
 		UpdatedAt:    time.Now(),
 	}
 	if err := db.DB.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "order_id"}},
 		DoUpdates: clause.AssignmentColumns([]string{"status", "updated_at"}),
 	}).Create(&order).Error; err != nil {
 		return errors.New("failed to sync order")
