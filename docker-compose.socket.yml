@@ -1,0 +1,10 @@
+version: "3.8"
+services:
+  socket:
+    build:
+      context: .
+      dockerfile: Dockerfile.socket
+    container_name: dev-socket
+    command: go run cmd/socket/main.go
+    ports:
+      - "8081:8081"
