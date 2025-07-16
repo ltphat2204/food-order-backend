@@ -6,7 +6,7 @@ COPY go.sum ./
 COPY cmd/socket ./cmd/socket
 COPY internal/shared ./internal/shared
 COPY internal/app/order/model ./internal/app/order/model
-RUN go mod tidy
+
 RUN go build -o socket-server ./cmd/socket/main.go
 
 FROM alpine:latest
