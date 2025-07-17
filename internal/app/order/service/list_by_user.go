@@ -29,6 +29,8 @@ func ListOrdersByUser(query ListUserOrdersQuery) (*ListUserOrdersResult, error) 
 		tx = tx.Where("restaurant_id = ?", query.RestaurantID)
 	}
 
+	tx = tx.Order("created_at desc")
+
 	var total int64
 	if err := tx.Count(&total).Error; err != nil {
 		return nil, err

@@ -25,6 +25,8 @@ func ListOrdersByMerchant(query ListMerchantOrdersQuery) (*ListMerchantOrdersRes
 		tx = tx.Where("status = ?", query.Status)
 	}
 
+	tx = tx.Order("created_at desc")
+
 	var total int64
 	if err := tx.Count(&total).Error; err != nil {
 		return nil, err

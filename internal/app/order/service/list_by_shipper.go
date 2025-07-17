@@ -6,9 +6,9 @@ import (
 )
 
 type ListShipperNewOrdersQuery struct {
-	Page  int
-	Limit int
-    Status string
+	Page   int
+	Limit  int
+	Status string
 }
 
 type ListShipperNewOrdersResult struct {
@@ -18,12 +18,14 @@ type ListShipperNewOrdersResult struct {
 
 func ListNewOrdersForShipper(query ListShipperNewOrdersQuery) (*ListShipperNewOrdersResult, error) {
 	var orders []model.Order
-    tx := db.DB.Model(&model.Order{})
-    if query.Status != "" {
-        tx = tx.Where("status = ?", query.Status)
-    } else {
-        tx = tx.Where("status = ?", "RESTAURANT_ACCEPTED")
-    }
+	tx := db.DB.Model(&model.Order{})
+	if query.Status != "" {
+		tx = tx.Where("status = ?", query.Status)
+	} else {
+		tx = tx.Where("status = ?", "RESTAURANT_ACCEPTED")
+	}
+
+	tx = tx.Order("created_at desc")
 
 	var total int64
 	if err := tx.Count(&total).Error; err != nil {
