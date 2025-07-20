@@ -2,6 +2,7 @@ package ws
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"net/http"
 	"sync"
@@ -9,6 +10,7 @@ import (
 	"food-order-backend/internal/shared/config"
 
 	"github.com/gorilla/websocket"
+	"github.com/redis/go-redis/v9"
 )
 
 type Hub struct {
@@ -118,17 +120,42 @@ func (h *Hub) Broadcast(message []byte) {
 	h.broadcast <- message
 }
 
-// SubscribeAndBroadcast subscribes to Redis channel and broadcasts messages to all clients
-func (h *Hub) SubscribeAndBroadcast(ctx context.Context, channel string) {
-	redisClient := config.GetRedisClient()
-	if redisClient == nil {
-		return
+// SubscribeAndBroadcastFromStream subscribes to Redis stream and broadcasts messages to all clients
+func (h *Hub) SubscribeAndBroadcastFromStream(ctx context.Context) {
+	// Create a stream consumer for WebSocket broadcasting
+	consumer := config.NewStreamConsumer(
+		config.OrderEventsStream,
+		config.ConsumerGroup,
+		config.ConsumerName,
+		func(message redis.XMessage) error {
+			// Convert message to JSON for broadcasting
+			eventData := map[string]interface{}{
+				"order_id":   message.Values["order_id"],
+				"user_id":    message.Values["user_id"],
+				"event_type": message.Values["event_type"],
+				"timestamp":  message.Values["timestamp"],
+				"data":       message.Values,
+			}
+
+			// Remove redundant fields from data
+			if data, ok := eventData["data"].(map[string]interface{}); ok {
+				delete(data, "order_id")
+				delete(data, "user_id")
+				delete(data, "event_type")
+				delete(data, "timestamp")
+			}
+
+			// Marshal to JSON and broadcast
+			if jsonData, err := json.Marshal(eventData); err == nil {
+				h.Broadcast(jsonData)
+			}
+
+			return nil
+		},
+	)
+
+	// Start the consumer
+	if err := consumer.Start(ctx); err != nil {
+		log.Printf("Failed to start stream consumer: %v", err)
 	}
-	pubsub := redisClient.Subscribe(ctx, channel)
-	ch := pubsub.Channel()
-	go func() {
-		for msg := range ch {
-			h.Broadcast([]byte(msg.Payload))
-		}
-	}()
 }

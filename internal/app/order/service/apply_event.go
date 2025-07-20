@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"time"
 
@@ -19,19 +18,65 @@ func ApplyOrderEvent(orderID string, eventType string, data model.OrderEventData
 		return err
 	}
 
-	// Broadcast to websocket clients
-	msg := map[string]interface{}{
-		"order_id":   orderID,
-		"user_id":    data.UserID,
-		"event_type": eventType,
-		"data":       data,
+	// Publish event to Redis stream for event-driven architecture
+	streamEvent := config.StreamEvent{
+		OrderID:   orderID,
+		UserID:    data.UserID,
+		EventType: eventType,
+		Data:      map[string]interface{}{},
+		Timestamp: time.Now(),
 	}
-	if b, err := json.Marshal(msg); err == nil {
-		// Publish to Redis channel instead of direct broadcast
-		redisClient := config.GetRedisClient()
-		if redisClient != nil {
-			redisClient.Publish(context.Background(), "order_events", b)
-		}
+
+	// Convert OrderEventData to map for stream
+	if data.UserID != 0 {
+		streamEvent.Data["user_id"] = data.UserID
+	}
+	if data.RestaurantID != 0 {
+		streamEvent.Data["restaurant_id"] = data.RestaurantID
+	}
+	if data.Items != nil {
+		streamEvent.Data["items"] = data.Items
+	}
+	if data.Note != "" {
+		streamEvent.Data["note"] = data.Note
+	}
+	if data.Status != "" {
+		streamEvent.Data["status"] = data.Status
+	}
+	if data.ShipperID != "" {
+		streamEvent.Data["shipper_id"] = data.ShipperID
+	}
+	if data.MerchantID != "" {
+		streamEvent.Data["merchant_id"] = data.MerchantID
+	}
+	if data.Time != "" {
+		streamEvent.Data["time"] = data.Time
+	}
+	if data.Distance != "" {
+		streamEvent.Data["distance"] = data.Distance
+	}
+	if data.EstimatedTime != "" {
+		streamEvent.Data["estimated_time"] = data.EstimatedTime
+	}
+	if data.PickupTime != "" {
+		streamEvent.Data["pickup_time"] = data.PickupTime
+	}
+	if data.DeliveryTime != "" {
+		streamEvent.Data["delivery_time"] = data.DeliveryTime
+	}
+	if data.ReceiverInfo != "" {
+		streamEvent.Data["receiver_info"] = data.ReceiverInfo
+	}
+	if data.Reason != "" {
+		streamEvent.Data["reason"] = data.Reason
+	}
+	if data.CanceledBy != "" {
+		streamEvent.Data["canceled_by"] = data.CanceledBy
+	}
+
+	if err := config.PublishToStream(context.Background(), streamEvent); err != nil {
+		// Log error but don't fail the operation
+		// In production, you might want to handle this differently
 	}
 
 	// Sync read model

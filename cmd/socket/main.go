@@ -63,8 +63,8 @@ func main() {
 
 	hub := ws.GetHub()
 
-	// Subscribe to Redis channel and broadcast to websocket clients
-	go hub.SubscribeAndBroadcast(context.Background(), "order_events")
+	// Subscribe to Redis stream and broadcast to websocket clients
+	go hub.SubscribeAndBroadcastFromStream(context.Background())
 
 	r.GET("/ws/orders", func(c *gin.Context) {
 		ws.ServeWs(hub, c.Writer, c.Request)
