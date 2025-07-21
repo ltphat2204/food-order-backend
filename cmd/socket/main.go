@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 
-	"food-order-backend/internal/shared/config"
 	"food-order-backend/internal/shared/ws"
 
 	"github.com/gin-gonic/gin"
@@ -57,14 +56,14 @@ import (
 // @Produce json
 // @Router /ws/orders [get]
 func main() {
-	config.InitRedis()
+	// config.InitRedis() // No longer needed for socket
 
 	r := gin.Default()
 
 	hub := ws.GetHub()
 
-	// Subscribe to Redis stream and broadcast to websocket clients
-	go hub.SubscribeAndBroadcastFromStream(context.Background())
+	// Subscribe to Kafka and broadcast to websocket clients
+	go hub.SubscribeAndBroadcastFromKafkaGo(context.Background())
 
 	r.GET("/ws/orders", func(c *gin.Context) {
 		ws.ServeWs(hub, c.Writer, c.Request)

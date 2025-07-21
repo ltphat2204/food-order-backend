@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"gorm.io/driver/postgres"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
 	"food-order-backend/internal/app/order/model"
@@ -15,7 +15,7 @@ var DB *gorm.DB
 func Init() {
 	dsn := os.Getenv("DB_DSN")
 	var err error
-	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("failed to connect to DB: %v", err)
 	}

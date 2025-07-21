@@ -27,5 +27,3 @@ This backend now uses Redis Streams for event-driven communication, replacing th
 - **Consumer Groups**: Multiple consumers can process events with load balancing
 - **Guaranteed Delivery**: Message acknowledgment ensures reliable delivery
 - **Scalability**: Better handling of high-throughput scenarios
-
-See [Redis Streams Documentation](docs/redis-streams.md) for detailed implementation information.
