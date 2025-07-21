@@ -20,8 +20,9 @@ clean-build:
 	rm -f bin/$(SOCKET_NAME)
 	make build
 
+# Start all dev dependencies (MySQL, Redis, Kafka, Zookeeper)
 deps:
-	docker-compose -f $(DOCKER_DEV_FILE) up -d
+	docker-compose -f $(DOCKER_DEV_FILE) up -d --build
 
 stop:
 	docker-compose -f $(DOCKER_DEV_FILE) down
@@ -32,11 +33,17 @@ logs:
 swagger:
 	swag init --generalInfo cmd/api/main.go --output docs
 
-# Test aggregate consistency
-test-consistency:
-	go test ./internal/app/order/service/ -v -run="TestAggregate"
+# Build production images
+build-prod:
+	docker build -t food-order-rest --target=rest .
+	docker build -t food-order-socket --target=socket .
 
-# Benchmark read performance (CQRS): compare event replay vs read model
-benchmark-read:
-	go test ./internal/app/order/service/ -bench=BenchmarkReadPerformance -benchmem
+# Start production stack
+prod-up:
+	docker-compose -f docker-compose.prod.yml up -d
+
+# Stop production stack
+prod-down:
+	docker-compose -f docker-compose.prod.yml down -v
+
 

@@ -18,7 +18,7 @@ func ApplyOrderEvent(orderID string, eventType string, data model.OrderEventData
 		return err
 	}
 
-	// Publish event to Redis stream for event-driven architecture
+	// Publish event to Kafka for event-driven architecture
 	streamEvent := config.StreamEvent{
 		OrderID:   orderID,
 		UserID:    data.UserID,
@@ -74,7 +74,7 @@ func ApplyOrderEvent(orderID string, eventType string, data model.OrderEventData
 		streamEvent.Data["canceled_by"] = data.CanceledBy
 	}
 
-	if err := config.PublishToStream(context.Background(), streamEvent); err != nil {
+	if err := config.PublishToKafka(context.Background(), streamEvent); err != nil {
 		// Log error but don't fail the operation
 		// In production, you might want to handle this differently
 	}
@@ -94,5 +94,7 @@ func ApplyOrderEvent(orderID string, eventType string, data model.OrderEventData
 	}).Create(&order).Error; err != nil {
 		return errors.New("failed to sync order")
 	}
+	// Invalidate the order cache in Redis on status update
+	_ = config.DeleteOrderCache(context.Background(), orderID)
 	return nil
 }
