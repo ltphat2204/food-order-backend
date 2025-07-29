@@ -47,3 +47,11 @@ prod-down:
 	docker-compose -f docker-compose.prod.yml down -v
 
 
+# Test aggregate consistency
+test-consistency:
+	go test ./internal/app/order/service/ -v -run="TestAggregate"
+
+# Benchmark read performance (CQRS): compare event replay vs read model
+benchmark-read:
+	go test ./internal/app/order/service/ -bench=BenchmarkReadPerformance -benchmem
+
